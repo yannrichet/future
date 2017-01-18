@@ -1,15 +1,15 @@
 source("incl/start.R")
 
-message("*** eager() ...")
+message("*** sequential() ...")
 
 for (globals in c(FALSE, TRUE)) {
 
-message(sprintf("*** eager(..., globals=%s) without globals", globals))
+message(sprintf("*** sequential(..., globals=%s) without globals", globals))
 
-f <- eager({
+f <- sequential({
   42L
 }, globals=globals)
-stopifnot(inherits(f, "SequentialFuture"), !f$lazy, inherits(f, "EagerFuture"))
+stopifnot(inherits(f, "SequentialFuture"), !f$lazy)
 
 print(resolved(f))
 stopifnot(resolved(f))
@@ -19,17 +19,17 @@ print(y)
 stopifnot(y == 42L)
 
 
-message(sprintf("*** eager(..., globals=%s) with globals", globals))
+message(sprintf("*** sequential(..., globals=%s) with globals", globals))
 ## A global variable
 a <- 0
-f <- eager({
+f <- sequential({
   b <- 3
   c <- 2
   a * b * c
 }, globals=globals)
 print(f)
 
-## Since 'a' is a global variable in _eager_ future 'f',
+## Since 'a' is a global variable in _sequential_ future 'f',
 ## it already has been resolved, and any changes to 'a'
 ## at this point will _not_ affect the value of 'f'.
 a <- 7
@@ -38,13 +38,13 @@ print(v)
 stopifnot(v == 0)
 
 
-message(sprintf("*** eager(..., globals=%s) and errors", globals))
-f <- eager({
+message(sprintf("*** sequential(..., globals=%s) and errors", globals))
+f <- sequential({
   stop("Whoops!")
   1
 }, globals=globals)
 print(f)
-stopifnot(inherits(f, "SequentialFuture"), !f$lazy, inherits(f, "EagerFuture"))
+stopifnot(inherits(f, "SequentialFuture"), !f$lazy)
 
 res <- try(value(f), silent=TRUE)
 print(res)
@@ -57,6 +57,6 @@ stopifnot(inherits(res, "try-error"))
 
 } # for (globals ...)
 
-message("*** eager() ... DONE")
+message("*** sequential() ... DONE")
 
 source("incl/end.R")

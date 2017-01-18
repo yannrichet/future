@@ -25,6 +25,7 @@ stopifnot(is.call(expr))
 clazzes <- list(
   sequential = SequentialFuture,
   multisession = function(...) MultisessionFuture(..., workers=2L),
+  sequential = SequentialFuture,
   eager = EagerFuture,
   lazy = LazyFuture
 )

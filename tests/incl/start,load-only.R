@@ -9,8 +9,8 @@ oopts <- options(
 )
 oplan <- future::plan()
 
-## Use eager futures by default
-future::plan("eager")
+## Use sequential futures by default
+future::plan("sequential")
 
 ## Private future functions
 .onLoad <- future:::.onLoad

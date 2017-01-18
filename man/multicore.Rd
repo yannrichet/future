@@ -20,7 +20,7 @@ is evaluated.}
 \code{\link[base]{substitute}()}:ed, otherwise not.}
 
 \item{lazy}{Specifies whether a future should be resolved
-lazily or eagerly.  The default is eager,
+lazily or eagerly.  The default is eager evaluation,
 except when the \emph{deprecated} \code{plan(lazy)} is set.}
 
 \item{seed}{(optional) A L'Ecuyer-CMRG RNG seed.}
@@ -43,7 +43,7 @@ as soon as possible or not.}
 A \link{MulticoreFuture}
 If \code{workers == 1}, then all processing using done in the
 current/main R session and we therefore fall back to using
-an eager future.  This is also the case whenever multicore
+an sequential future.  This is also the case whenever multicore
 processing is not supported, e.g. on Windows.
 }
 \description{
@@ -61,7 +61,7 @@ cores available including the current/main R process, see
 Not all systems support multicore futures.  For instance,
 it is not supported on Microsoft Windows.  Trying to create
 multicore futures on non-supported systems will silently
-fall back to using \link{eager} futures, which effectively
+fall back to using \link{sequential} futures, which effectively
 corresponds to a multicore future that can handle one parallel
 process (the current one) before blocking.
 

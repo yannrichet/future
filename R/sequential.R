@@ -22,7 +22,7 @@
 #' \code{\link{future}()} and \code{\link{\%<-\%}} will evaluate
 #' the expressions using \emph{sequential futures}.
 #'
-#' @section transparent futures:
+#' @section Transparent futures:
 #' Transparent futures are sequential futures configured to emulate how R
 #' evaluates expressions as far as possible.  For instance, errors and
 #' warnings are signaled immediately and assignments are done to the
@@ -30,6 +30,35 @@
 #' types of futures).  This makes transparent futures ideal for
 #' troubleshooting, especially when there are errors.
 #'
+#' @section Deprecated futures:
+#' The \code{eager} and the \code{lazy} futures will soon be deprecated and
+#' eventually removed.  The \code{eager} future is replaced by the
+#' \code{sequential} future (and works identically).
+#' The \code{lazy} future needs to be replaced by specifying lazyness when
+#' creating futures, e.g. \code{f <- future({ ... }, lazy = TRUE)} and
+#' \code{v \%<-\% { ... } \%lazy\% TRUE}.  There is no alternative for
+#' \code{plan(lazy)}, because control of lazyness should be in the hands of
+#' the developer and not the end user.
+#'
+#' @export
+sequential <- function(expr, envir=parent.frame(), substitute=TRUE, lazy=FALSE, seed=NULL, globals=TRUE, local=TRUE, earlySignal=FALSE, label=NULL, ...) {
+  if (substitute) expr <- substitute(expr)
+  future <- SequentialFuture(expr=expr, envir=envir, substitute=FALSE, lazy=lazy, seed=seed, globals=globals, local=local, earlySignal=earlySignal, label=label, ...)
+  if (!future$lazy) future <- run(future)
+  invisible(future)
+}
+class(sequential) <- c("sequential", "future", "function")
+
+
+#' @rdname sequential
+#' @export
+transparent <- function(expr, envir=parent.frame(), substitute=TRUE, lazy=FALSE, seed=NULL, globals=FALSE, local=FALSE, earlySignal=TRUE, label=NULL, ...) {
+  if (substitute) expr <- substitute(expr)
+  sequential(expr, envir=envir, substitute=FALSE, lazy=lazy, seed=seed, globals=globals, local=local, earlySignal=earlySignal, label=label, ...)
+}
+class(transparent) <- c("transparent", class(sequential))
+
+
 #' @rdname sequential
 #' @export
 eager <- function(expr, envir=parent.frame(), substitute=TRUE, lazy=FALSE, seed=NULL, globals=TRUE, local=TRUE, earlySignal=FALSE, label=NULL, ...) {
@@ -40,15 +69,8 @@ eager <- function(expr, envir=parent.frame(), substitute=TRUE, lazy=FALSE, seed=
   if (!future$lazy) future <- run(future)
   invisible(future)
 }
-class(eager) <- c("eager", "sequential", "future", "function")
+class(eager) <- c("eager", class(sequential))
 
-#' @rdname sequential
-#' @export
-transparent <- function(expr, envir=parent.frame(), substitute=TRUE, lazy=FALSE, seed=NULL, globals=FALSE, local=FALSE, earlySignal=TRUE, label=NULL, ...) {
-  if (substitute) expr <- substitute(expr)
-  sequential(expr, envir=envir, substitute=FALSE, lazy=lazy, seed=seed, globals=globals, local=local, earlySignal=earlySignal, label=label, ...)
-}
-class(transparent) <- c("transparent", "sequential", "future", "function")
 
 #' @rdname sequential
 #' @export
@@ -60,20 +82,9 @@ lazy <- function(expr, envir=parent.frame(), substitute=TRUE, lazy=TRUE, seed=NU
   if (!future$lazy) future <- run(future)
   invisible(future)
 }
-class(lazy) <- c("lazy", "sequential", "future", "function")
+class(lazy) <- c("lazy", class(sequential))
 
 ## WORKAROUND:
 ## Avoid lazyeval::print.lazy() being called with print(lazy())
 ## https://github.com/HenrikBengtsson/future/issues/52
 class(lazy) <- c("function", class(lazy))
-
-
-#' @rdname sequential
-#' @export
-sequential <- function(expr, envir=parent.frame(), substitute=TRUE, lazy=FALSE, seed=NULL, globals=TRUE, local=TRUE, earlySignal=FALSE, label=NULL, ...) {
-  if (substitute) expr <- substitute(expr)
-  future <- SequentialFuture(expr=expr, envir=envir, substitute=FALSE, lazy=lazy, seed=seed, globals=globals, local=local, earlySignal=earlySignal, label=label, ...)
-  if (!future$lazy) future <- run(future)
-  invisible(future)
-}
-class(sequential) <- c("sequential", "future", "function")

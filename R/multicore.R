@@ -12,7 +12,7 @@
 #' @return A \link{MulticoreFuture}
 #' If \code{workers == 1}, then all processing using done in the
 #' current/main R session and we therefore fall back to using
-#' an eager future.  This is also the case whenever multicore
+#' an sequential future.  This is also the case whenever multicore
 #' processing is not supported, e.g. on Windows.
 #'
 #' @example incl/multicore.R
@@ -27,7 +27,7 @@
 #' Not all systems support multicore futures.  For instance,
 #' it is not supported on Microsoft Windows.  Trying to create
 #' multicore futures on non-supported systems will silently
-#' fall back to using \link{eager} futures, which effectively
+#' fall back to using \link{sequential} futures, which effectively
 #' corresponds to a multicore future that can handle one parallel
 #' process (the current one) before blocking.
 #'
