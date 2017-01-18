@@ -18,7 +18,6 @@ future::plan("eager")
 asIEC <- future:::asIEC
 ClusterRegistry <- future:::ClusterRegistry
 constant <- future:::constant
-uniprocess <- future:::uniprocess ## To become public
 detectCores <- future:::detectCores
 future_lapply <- future:::future_lapply
 FutureRegistry <- future:::FutureRegistry

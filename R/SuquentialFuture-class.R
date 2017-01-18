@@ -1,20 +1,20 @@
-#' An uniprocess future is a future whose value will be resolved synchronously in the current process
+#' An sequential future is a future whose value will be resolved synchronously in the current process
 #'
 #' @inheritParams Future-class
 #' @param lazy If \code{FALSE} (default), then the setup and validation of
 #' global variables are done for eager evaluation, otherwise not.
 #' @param \dots Additional named elements passed to \code{\link{Future}()}.
 #'
-#' @return An object of class \code{UniprocessFuture}.
+#' @return An object of class \code{SequentialFuture}.
 #'
 #' @seealso
-#' To evaluate an expression using "uniprocess future", see functions
-#' \code{\link{uniprocess}()}.
+#' To evaluate an expression using "sequential future", see functions
+#' \code{\link{sequential}()}.
 #'
 #' @export
-#' @name UniprocessFuture-class
+#' @name SequentialFuture-class
 #' @keywords internal
-UniprocessFuture <- function(expr=NULL, envir=parent.frame(), substitute=FALSE, lazy=FALSE, globals=TRUE, local=TRUE, ...) {
+SequentialFuture <- function(expr=NULL, envir=parent.frame(), substitute=FALSE, lazy=FALSE, globals=TRUE, local=TRUE, ...) {
   if (substitute) expr <- substitute(expr)
 
   if (lazy) {
@@ -23,7 +23,7 @@ UniprocessFuture <- function(expr=NULL, envir=parent.frame(), substitute=FALSE, 
       envir <- new.env(parent=envir)
     } else {
       if (!is.logical(globals) || globals) {
-        stop("Non-supported use of lazy uniprocess futures: Whenever argument 'local' is FALSE, then argument 'globals' must also be FALSE. Lazy uniprocess future evaluation in the calling environment (local=FALSE) can only be done if global objects are resolved at the same time.")
+        stop("Non-supported use of lazy sequential futures: Whenever argument 'local' is FALSE, then argument 'globals' must also be FALSE. Lazy sequential future evaluation in the calling environment (local=FALSE) can only be done if global objects are resolved at the same time.")
       }
     }
   }
@@ -45,12 +45,12 @@ UniprocessFuture <- function(expr=NULL, envir=parent.frame(), substitute=FALSE, 
   gp <- NULL
 
   f <- Future(expr=expr, envir=envir, substitute=FALSE, lazy=lazy, asynchronous=FALSE, local=local, ...)
-  structure(f, class=c("UniprocessFuture", class(f)))
+  structure(f, class=c("SequentialFuture", class(f)))
 }
 
 
 #' @export
-run.UniprocessFuture <- function(future, ...) {
+run.SequentialFuture <- function(future, ...) {
   if (future$state != 'created') {
     stop("A future can only be launched once.")
   }
@@ -98,9 +98,9 @@ run.UniprocessFuture <- function(future, ...) {
 
 
 #' @export
-resolved.UniprocessFuture <- function(x, ...) {
+resolved.SequentialFuture <- function(x, ...) {
   if (x$lazy) {
-    ## resolved() for lazy uniprocess futures must force value()
+    ## resolved() for lazy sequential futures must force value()
     ## such that the future gets resolved.  The reason for this
     ## is so that polling is always possible, e.g.
     ## while(!resolved(f)) Sys.sleep(5);
@@ -110,19 +110,19 @@ resolved.UniprocessFuture <- function(x, ...) {
 }
 
 
-#' @rdname UniprocessFuture-class
+#' @rdname SequentialFuture-class
 #' @export
 EagerFuture <- function(expr=NULL, envir=parent.frame(), substitute=FALSE, lazy=FALSE, globals=TRUE, local=TRUE, ...) {
   if (substitute) expr <- substitute(expr)
-  f <- UniprocessFuture(expr=expr, envir=envir, substitute=FALSE, lazy=lazy, globals=globals, local=local, ...)
+  f <- SequentialFuture(expr=expr, envir=envir, substitute=FALSE, lazy=lazy, globals=globals, local=local, ...)
   structure(f, class=c("EagerFuture", class(f)))
 }
 
 
-#' @rdname UniprocessFuture-class
+#' @rdname SequentialFuture-class
 #' @export
 LazyFuture <- function(expr=NULL, envir=parent.frame(), substitute=FALSE, lazy=TRUE, globals=TRUE, local=TRUE, ...) {
   if (substitute) expr <- substitute(expr)
-  f <- UniprocessFuture(expr=expr, envir=envir, substitute=FALSE, lazy=lazy, globals=globals, local=local, ...)
+  f <- SequentialFuture(expr=expr, envir=envir, substitute=FALSE, lazy=lazy, globals=globals, local=local, ...)
   structure(f, class=c("LazyFuture", class(f)))
 }

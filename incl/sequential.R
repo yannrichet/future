@@ -1,10 +1,10 @@
-## Use an eager uniprocess futures
-plan(eager)
+## Use sequential futures
+plan(sequential)
 
 ## A global variable
 a <- 0
 
-## Create an eager uniprocess future (explicitly)
+## Create the future
 f <- future({
   b <- 3
   c <- 2

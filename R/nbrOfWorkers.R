@@ -25,7 +25,7 @@ nbrOfWorkers.cluster <- function(evaluator) {
 }
 
 #' @export
-nbrOfWorkers.uniprocess <- function(evaluator) 1L
+nbrOfWorkers.sequential <- function(evaluator) 1L
 
 #' @export
 nbrOfWorkers.multiprocess <- function(evaluator) {
