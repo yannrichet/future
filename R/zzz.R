@@ -57,8 +57,8 @@
       mdebug("=> options(future.plan=sequential)")
       options(future.plan=sequential)
     } else {
-      mdebug("=> options(future.plan=tweak(multiprocess, workers=%s))", p)
-      options(future.plan=tweak(multiprocess, workers=p))
+      mdebug("=> options(future.plan=tweak(parallel, workers=%s))", p)
+      options(future.plan=tweak(parallel, workers=p))
     }
   }
 

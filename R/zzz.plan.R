@@ -170,7 +170,7 @@ plan <- local({
           return(invisible(res))
         }
 
-        ## Example: plan(list(sequential, multiprocess))
+        ## Example: plan(list(sequential, parallel))
         if (is.function(first) && identical(first, list)) {
           ## Specified explicitly using plan(list(...))?
           strategies <- eval(strategy, envir=parent.frame())
@@ -251,7 +251,7 @@ plan <- local({
 }) # plan()
 
 
-supportedStrategies <- function(strategies=c("lazy", "eager", "sequential", "multicore", "multisession", "multiprocess", "cluster")) {
+supportedStrategies <- function(strategies=c("lazy", "eager", "sequential", "multicore", "multisession", "multiprocess", "cluster", "parallel")) {
   if (!supportsMulticore()) strategies <- setdiff(strategies, "multicore")
   strategies
 }

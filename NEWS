@@ -1,6 +1,33 @@
 Package: future
 ===============
 
+Version: 1.9.9-9000 [2017-01-20]
+
+INSTRUCTIONS:
+
+ o To install this develop(ers) version of the future package, do:
+ 
+      source('http://callr.org/install#HenrikBengtsson/future@seqpar')
+
+
+SIGNIFICANT CHANGES:
+
+ o Add 'sequential' futures, e.g. plan(sequential).  This replaces 'eager'.
+
+ o Add 'parallel' futures, e.g. plan(parallel), plan(parallel, workers = 4),
+   plan(parallel, workers = c("machine1", "machine2")), and
+   plan(parallel, workers = c("n1.remote.org", "n2.remote.org")).
+   This replaces 'multiprocess', 'cluster' and 'remote'.
+
+
+DEPRECATED:
+
+##  o 'eager' futures are deprecated.  Use 'sequential' instead.
+
+##  o 'lazy' futures are deprecated.  Instead, use f <- future(..., lazy = TRUE)
+##    or v %<-% { ... } %lazy% TRUE instead.
+
+
 Version: 1.2.0-9000 [2017-01-16]
 
 INSTRUCTIONS:

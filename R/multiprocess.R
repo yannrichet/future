@@ -37,3 +37,9 @@ multiprocess <- function(expr, envir=parent.frame(), substitute=TRUE, lazy=FALSE
   fun(expr=expr, envir=envir, substitute=FALSE, lazy=lazy, seed=seed, globals=globals, workers=workers, gc=gc, earlySignal=earlySignal, label=label, ...)
 }
 class(multiprocess) <- c("multiprocess", "future", "function")
+
+#' @rdname multiprocess
+#' @export
+parallel <- multiprocess
+class(parallel) <- c(class(multiprocess), "parallel")
+
