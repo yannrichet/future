@@ -23,7 +23,9 @@ SIGNIFICANT CHANGES:
    using command-line option '--parallel=<workers>' or short '-p <workers>'
    where workers can be an integer specifying the number of parallel futures
    on the current machines or a comma- or space separated vector of machine
-   names, e.g. --parallel=4 and --parallel=local1,remote2.server.org.
+   names, e.g. --parallel=4 and --parallel=local1,remote2.server.org.  It is
+   also possible to request all cores but, say, two, by specifying a negative
+   value, i.e. --parallel=-2.  To request all cores use --parallel=-0.
 
 
 DEPRECATED:

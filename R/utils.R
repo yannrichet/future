@@ -257,25 +257,37 @@ parseCmdArgs <- function() {
     cmdarg <- cmdargs[idx]
     if (cmdarg == "-p") {
       value <- cmdargs[idx+1L]
-      cmdarg <- sprintf("-p %s", cmdarg)
+      cmdarg <- sprintf("-p %s", value)
     } else {
       value <- gsub("--parallel=", "", cmdarg)
     }
 
     ## A number of a set of machines?
     value <- trim(value)
-    if (grepl("^[0-9]+$", value)) {
+    if (value == "-0") {
+       value <- availableCores()
+       args$p <- value
+    } else if (grepl("^(-|+|)[0-9]+$", value)) {
       value <- as.integer(value)
-      max <- availableCores(methods="system")
-      if (is.na(value) || value <= 0L) {
+      max <- availableCores()
+      if (is.na(value) || value == 0L) {
         msg <- sprintf("future: Ignoring invalid number of processes specified in command-line option: %s", cmdarg)
         warning(msg, call.=FALSE, immediate.=TRUE)
+      } else if (value < 0L) {
+        value <- max(1L, max + value)
+        args$p <- value
       } else if (value > max) {
         msg <- sprintf("future: Ignoring requested number of processes, because it is greater than the number of cores/child processes available (=%d) to this R process: %s", max, cmdarg)
         warning(msg, call.=FALSE, immediate.=TRUE)
       } else {
         args$p <- value
       }
+    } else if (grepl("^_(.*)_+$", value)) {
+       methods <- gsub("^_(.*)_+$", "\\1", value)
+       methods <- unlist(strsplit(methods, split = "[, ]"))
+       methods <- trim(methods)
+       value <- availableCores(methods = methods)
+       args$p <- value
     } else {
       value <- unlist(strsplit(value, split = "[, ]", fixed = FALSE))
       value <- trim(value)
