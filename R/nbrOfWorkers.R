@@ -25,6 +25,15 @@ nbrOfWorkers.cluster <- function(evaluator) {
 }
 
 #' @export
+nbrOfWorkers.parallel <- function(evaluator) {
+  expr <- formals(evaluator)$workers
+  workers <- eval(expr)
+  if (is.character(workers)) workers <- length(workers)
+  stopifnot(length(workers) == 1, is.finite(workers), workers >= 1)
+  workers
+}
+
+#' @export
 nbrOfWorkers.sequential <- function(evaluator) 1L
 
 #' @export

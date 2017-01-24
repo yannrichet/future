@@ -43,7 +43,7 @@
 
   args <- parseCmdArgs()
   p <- args$p
-  if (!is.null(p)) {
+  if (is.numeric(p)) {
     mdebug("R command-line argument: -p %s", p)
     
     ## Apply
@@ -60,6 +60,10 @@
       mdebug("=> options(future.plan=tweak(parallel, workers=%s))", p)
       options(future.plan=tweak(parallel, workers=p))
     }
+  } else if (is.character(p)) {
+    mdebug("R command-line argument: -p '%s'", paste(sQuote(p), collapse = ","))
+    mdebug("=> options(future.plan=tweak(parallel, workers=c(%s)))", paste(sQuote(p), collapse = ","))
+    options(future.plan=tweak(parallel, workers=p))
   }
 
   ## Create UUID for this process

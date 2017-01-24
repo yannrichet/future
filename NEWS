@@ -19,6 +19,12 @@ SIGNIFICANT CHANGES:
    plan(parallel, workers = c("n1.remote.org", "n2.remote.org")).
    This replaces 'multiprocess', 'cluster' and 'remote'.
 
+ o It's now possible to set up parallel future workers when starting R
+   using command-line option '--parallel=<workers>' or short '-p <workers>'
+   where workers can be an integer specifying the number of parallel futures
+   on the current machines or a comma- or space separated vector of machine
+   names, e.g. --parallel=4 and --parallel=local1,remote2.server.org.
+
 
 DEPRECATED:
 

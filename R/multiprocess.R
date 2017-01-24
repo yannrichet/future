@@ -40,6 +40,18 @@ class(multiprocess) <- c("multiprocess", "future", "function")
 
 #' @rdname multiprocess
 #' @export
-parallel <- multiprocess
-class(parallel) <- c(class(multiprocess), "parallel")
+parallel <- function(expr, envir=parent.frame(), substitute=TRUE, lazy=FALSE, seed=NULL, globals=TRUE, workers=availableCores(), gc=FALSE, earlySignal=FALSE, label=NULL, ...) {
+  if (substitute) expr <- substitute(expr)
+
+  if (is.numeric(workers)) {
+    fun <- if (supportsMulticore()) multicore else multisession
+  } else if (is.character(workers)) {
+    fun <- cluster
+  } else {
+    workers <- as.cluster(workers)
+    fun <- cluster
+  }
+  fun(expr=expr, envir=envir, substitute=FALSE, lazy=lazy, seed=seed, globals=globals, workers=workers, gc=gc, earlySignal=earlySignal, label=label, ...)
+}
+class(parallel) <- c("parallel", class(multiprocess))
 
