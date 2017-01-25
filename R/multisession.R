@@ -54,7 +54,7 @@
 #' cores that are available for the current R session.
 #'
 #' @export
-multisession <- function(expr, envir=parent.frame(), substitute=TRUE, lazy=FALSE, seed=NULL, globals=TRUE, persistent=FALSE, workers=availableCores(), gc=FALSE, earlySignal=FALSE, label=NULL, ...) {
+multisession <- function(expr, envir=parent.frame(), substitute=TRUE, lazy=FALSE, seed=NULL, globals=TRUE, persistent=FALSE, workers=availableCores(), useseq=TRUE, gc=FALSE, earlySignal=FALSE, label=NULL, ...) {
   ## BACKWARD COMPATIBILITY
   args <- list(...)
   if ("maxCores" %in% names(args)) {
@@ -65,18 +65,21 @@ multisession <- function(expr, envir=parent.frame(), substitute=TRUE, lazy=FALSE
   if (substitute) expr <- substitute(expr)
   workers <- as.integer(workers)
   stopifnot(length(workers) == 1, is.finite(workers), workers >= 1)
+  useseq <- as.logical(useseq)
+  stopifnot(length(useseq) == 1, !is.na(useseq))
 
-  ## Fall back to lazy uniprocess futures if only a single R session can be used,
-  ## i.e. the use the current main R process.
-  if (workers == 1L) {
+  ## Fall back to lazy sequential futures if only a single R session can be used?
+  ## (uses only the current main R process)
+  if (useseq && workers == 1L) {
     ## FIXME: How to handle argument 'persistent'? /HB 2016-03-19
     return(uniprocess(expr, envir=envir, substitute=FALSE, lazy=TRUE, seed=seed, globals=globals, local=TRUE, label=label))
   }
 
   ## IMPORTANT: When we setup a multisession cluster, we need to
-  ## account for the main R process as well, i.e. we should setup
-  ## a cluster with one less process.
-  workers <- ClusterRegistry("start", workers=workers-1L)
+  ## account for the main R process as well if useseq = TRUE, i.e.
+  ## we should setup a cluster with one less process.
+  workersT <- if (useseq) workers - 1L else workers
+  workers <- ClusterRegistry("start", workers=workersT)
 
   future <- MultisessionFuture(expr=expr, envir=envir, substitute=FALSE, lazy=lazy, seed=seed, globals=globals, persistent=persistent, workers=workers, gc=gc, earlySignal=earlySignal, label=label, ...)
   if (!future$lazy) future <- run(future)

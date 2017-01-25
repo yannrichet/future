@@ -11,7 +11,7 @@
 #' @export
 #' @name MulticoreFuture-class
 #' @keywords internal
-MulticoreFuture <- function(expr=NULL, envir=parent.frame(), substitute=FALSE, globals=TRUE, ...) {
+MulticoreFuture <- function(expr=NULL, envir=parent.frame(), substitute=FALSE, globals=TRUE, useseq=TRUE, ...) {
   if (substitute) expr <- substitute(expr)
 
   args <- list(...)
@@ -34,7 +34,7 @@ MulticoreFuture <- function(expr=NULL, envir=parent.frame(), substitute=FALSE, g
   }
   gp <- NULL
 
-  f <- MultiprocessFuture(expr=expr, envir=envir, substitute=FALSE, job=NULL, ...)
+  f <- MultiprocessFuture(expr=expr, envir=envir, substitute=FALSE, useseq=useseq, job=NULL, ...)
   structure(f, class=c("MulticoreFuture", class(f)))
 }
 
@@ -56,7 +56,8 @@ run.MulticoreFuture <- function(future, ...) {
 
   requestCore(
     await=function() FutureRegistry("multicore", action="collect-first"),
-    workers=future$workers
+    workers=future$workers,
+    useseq=future$useseq
   )
 
   ## Add to registry

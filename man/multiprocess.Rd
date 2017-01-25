@@ -6,7 +6,7 @@
 \usage{
 multiprocess(expr, envir = parent.frame(), substitute = TRUE,
   lazy = FALSE, seed = NULL, globals = TRUE, workers = availableCores(),
-  gc = FALSE, earlySignal = FALSE, label = NULL, ...)
+  useseq = TRUE, gc = FALSE, earlySignal = FALSE, label = NULL, ...)
 }
 \arguments{
 \item{expr}{An \R \link[base]{expression} to be evaluated.}
@@ -31,6 +31,9 @@ in the help for \code{\link{future}()}.}
 
 \item{workers}{The maximum number of multiprocess futures that
 can be active at the same time before blocking.}
+
+\item{useseq}{Specifies whether sequential futures should be used or not
+if there is only a single core.}
 
 \item{gc}{If TRUE, the garbage collector run (in the process that
 evaluated the future) after the value of the future is collected.}

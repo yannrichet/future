@@ -6,7 +6,7 @@
 \title{An multicore future is a future whose value will be resolved asynchronously in a parallel process}
 \usage{
 MulticoreFuture(expr = NULL, envir = parent.frame(), substitute = FALSE,
-  globals = TRUE, ...)
+  globals = TRUE, useseq = TRUE, ...)
 }
 \arguments{
 \item{...}{Additional named elements passed to \code{\link{Future}()}.}

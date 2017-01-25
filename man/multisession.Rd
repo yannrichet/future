@@ -6,8 +6,8 @@
 \usage{
 multisession(expr, envir = parent.frame(), substitute = TRUE,
   lazy = FALSE, seed = NULL, globals = TRUE, persistent = FALSE,
-  workers = availableCores(), gc = FALSE, earlySignal = FALSE,
-  label = NULL, ...)
+  workers = availableCores(), useseq = TRUE, gc = FALSE,
+  earlySignal = FALSE, label = NULL, ...)
 }
 \arguments{
 \item{expr}{An \R \link[base]{expression} to be evaluated.}
@@ -35,6 +35,9 @@ from objects prior to the evaluation of the future.}
 
 \item{workers}{The maximum number of multisession futures that
 can be active at the same time before blocking.}
+
+\item{useseq}{Specifies whether sequential futures should be used or not
+if there is only a single core.}
 
 \item{gc}{If TRUE, the garbage collector run (in the process that
 evaluated the future) after the value of the future is collected.}

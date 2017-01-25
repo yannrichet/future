@@ -50,7 +50,7 @@
 #' system.
 #'
 #' @export
-multicore <- function(expr, envir=parent.frame(), substitute=TRUE, lazy=FALSE, seed=NULL, globals=TRUE, workers=availableCores(constraints="multicore"), earlySignal=FALSE, label=NULL, ...) {
+multicore <- function(expr, envir=parent.frame(), substitute=TRUE, lazy=FALSE, seed=NULL, globals=TRUE, workers=availableCores(constraints="multicore"), useseq=TRUE, earlySignal=FALSE, label=NULL, ...) {
   ## BACKWARD COMPATIBILITY
   args <- list(...)
   if ("maxCores" %in% names(args)) {
@@ -61,11 +61,12 @@ multicore <- function(expr, envir=parent.frame(), substitute=TRUE, lazy=FALSE, s
   if (substitute) expr <- substitute(expr)
   workers <- as.integer(workers)
   stopifnot(is.finite(workers), workers >= 1L)
-
-  ## Fall back to eager uniprocess futures if only a single additional R process
-  ## can be spawned off, i.e. then use the current main R process.
-  ## Uniprocess futures best reflect how multicore futures handle globals.
-  if (workers == 1L || !supportsMulticore()) {
+  useseq <- as.logical(useseq)
+  stopifnot(length(useseq) == 1, !is.na(useseq))
+  
+  ## Fall back to sequential futures if only a single additional R process
+  ## can be spawned off? (uses only the current main R process)
+  if ((useseq && workers == 1L) || !supportsMulticore()) {
     ## covr: skip=1
     return(uniprocess(expr, envir=envir, substitute=FALSE, lazy=lazy, seed=seed, globals=globals, local=TRUE, label=label))
   }
@@ -73,7 +74,7 @@ multicore <- function(expr, envir=parent.frame(), substitute=TRUE, lazy=FALSE, s
   oopts <- options(mc.cores=workers)
   on.exit(options(oopts))
 
-  future <- MulticoreFuture(expr=expr, envir=envir, substitute=FALSE, lazy=lazy, seed=seed, globals=globals, workers=workers, earlySignal=earlySignal, label=label, ...)
+  future <- MulticoreFuture(expr=expr, envir=envir, substitute=FALSE, lazy=lazy, seed=seed, globals=globals, workers=workers, useseq=useseq, earlySignal=earlySignal, label=label, ...)
   if (!future$lazy) future <- run(future)
   invisible(future)
 }
@@ -92,7 +93,7 @@ class(multicore) <- c("multicore", "multiprocess", "future", "function")
 #' @return A positive integer equal or greater than one.
 #'
 #' @keywords internal
-usedCores <- function() {
+usedCores <- function(useseq = TRUE) {
   ## Number of unresolved multicore futures
   futures <- FutureRegistry("multicore", action="list")
   nfutures <- length(futures)
@@ -122,7 +123,9 @@ usedCores <- function() {
     }
   }
 
-  return(ncores + 1L)
+  if (useseq) ncores <- ncores + 1L
+  
+  ncores
 }
 
 
@@ -150,17 +153,17 @@ usedCores <- function() {
 #'         extensive waiting, then a timeout error is thrown.
 #'
 #' @keywords internal
-requestCore <- function(await, workers=availableCores(), timeout = getOption("future.wait.timeout", 30*24*60*60), delta=getOption("future.wait.interval", 0.2), alpha=getOption("future.wait.alpha", 1.01)) {
+requestCore <- function(await, workers=availableCores(), useseq=TRUE, timeout = getOption("future.wait.timeout", 30*24*60*60), delta=getOption("future.wait.interval", 0.2), alpha=getOption("future.wait.alpha", 1.01)) {
   stopifnot(length(workers) == 1L, is.numeric(workers), is.finite(workers), workers >= 1)
   stopifnot(is.function(await))
   stopifnot(is.finite(timeout), timeout >= 0)
   stopifnot(is.finite(alpha), alpha > 0)
 
-  mdebug(sprintf("requestCore(): workers = %d", workers))
+  mdebug(sprintf("requestCore(useseq = %s): workers = %d", useseq, workers))
 
   ## No additional cores available?
-  if (workers == 1L) {
-    stop("INTERNAL ERROR: requestCore() was asked to find a free core, but there is only one core available, which is already occupied by the main R process.")
+  if (useseq && workers == 1L) {
+    stop(sprintf("INTERNAL ERROR: requestCore(useseq = %s) was asked to find a free core, but there is only one core available, which is already occupied by the main R process.", useseq))
   }
 
   
@@ -171,11 +174,11 @@ requestCore <- function(await, workers=availableCores(), timeout = getOption("fu
   finished <- FALSE
   while (dt <= timeout) {
     ## Check for available cores
-    used <- usedCores()
+    used <- usedCores(useseq = useseq)
     finished <- (used < workers)
     if (finished) break
 
-    mdebug(sprintf("Poll #%d (%s): usedCores() = %d, workers = %d", iter, format(round(dt, digits = 2L)), used, workers))
+    mdebug(sprintf("Poll #%d (%s): usedCores(useseq = %s) = %d, workers = %d", useseq, iter, format(round(dt, digits = 2L)), used, workers))
 
     ## Wait
     Sys.sleep(interval)

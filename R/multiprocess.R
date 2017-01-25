@@ -14,6 +14,8 @@
 #' in the help for \code{\link{future}()}.
 #' @param workers The maximum number of multiprocess futures that
 #' can be active at the same time before blocking.
+#' @param useseq Specifies whether sequential futures should be used or not
+#' if there is only a single core.
 #' @param gc If TRUE, the garbage collector run (in the process that
 #' evaluated the future) after the value of the future is collected.
 #' @param earlySignal Specified whether conditions should be signaled
@@ -31,9 +33,9 @@
 #' are used.
 #'
 #' @export
-multiprocess <- function(expr, envir=parent.frame(), substitute=TRUE, lazy=FALSE, seed=NULL, globals=TRUE, workers=availableCores(), gc=FALSE, earlySignal=FALSE, label=NULL, ...) {
+multiprocess <- function(expr, envir=parent.frame(), substitute=TRUE, lazy=FALSE, seed=NULL, globals=TRUE, workers=availableCores(), useseq=TRUE, gc=FALSE, earlySignal=FALSE, label=NULL, ...) {
   if (substitute) expr <- substitute(expr)
   fun <- if (supportsMulticore()) multicore else multisession
-  fun(expr=expr, envir=envir, substitute=FALSE, lazy=lazy, seed=seed, globals=globals, workers=workers, gc=gc, earlySignal=earlySignal, label=label, ...)
+  fun(expr=expr, envir=envir, substitute=FALSE, lazy=lazy, seed=seed, globals=globals, workers=workers, useseq=useseq, gc=gc, earlySignal=earlySignal, label=label, ...)
 }
 class(multiprocess) <- c("multiprocess", "future", "function")

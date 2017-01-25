@@ -6,7 +6,7 @@
 \usage{
 multicore(expr, envir = parent.frame(), substitute = TRUE, lazy = FALSE,
   seed = NULL, globals = TRUE, workers = availableCores(constraints =
-  "multicore"), earlySignal = FALSE, label = NULL, ...)
+  "multicore"), useseq = TRUE, earlySignal = FALSE, label = NULL, ...)
 }
 \arguments{
 \item{expr}{An \R \link[base]{expression} to be evaluated.}
@@ -31,6 +31,9 @@ For details, see below section.}
 
 \item{workers}{The maximum number of multicore futures that can
 be active at the same time before blocking.}
+
+\item{useseq}{Specifies whether sequential futures should be used or not
+if there is only a single core.}
 
 \item{earlySignal}{Specified whether conditions should be signaled
 as soon as possible or not.}
