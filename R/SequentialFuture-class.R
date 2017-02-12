@@ -1,4 +1,4 @@
-#' An sequential future is a future whose value will be resolved synchronously in the current process
+#' A sequential future is a future whose value will be resolved synchronously in the current process
 #'
 #' @inheritParams Future-class
 #' @param lazy If \code{FALSE} (default), then the setup and validation of
